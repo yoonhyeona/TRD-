@@ -5,7 +5,7 @@
 - **기반 문서:** `PRD.md`
 - **목적:** 사용자 흐름을 구현 가능한 아키텍처, API, 데이터 모델, 보안 정책, 테스트 기준으로 정의한다.
 - **범위:** 해커톤 웹 프로토타입 및 시연
-- **원칙:** 핵심 가치 우선, 최소 데이터 수집, 명시적 동의, 서버 측 권한 검증, 비진단적 AI 사용
+- **설계 원칙:** 핵심 가치 우선, 최소 데이터 수집, 명시적 동의, 서버 측 권한 검증, 비진단적 AI 사용
 
 > 본 서비스는 의료기기나 임상 진단 시스템이 아니다. AI는 인지활동·일상 건강 변화에 관한 참고용 요약만 제공하며 질환, 인지기능, 위험도 또는 긴급도를 판정하지 않는다.
 
@@ -26,9 +26,9 @@
 <a id="s0"></a>
 ## 0. PRD 정합성 및 우선순위
 
-### 0.1 기술 선택
+### 0.1 기술 선택과 범위
 
-PRD는 Python·Streamlit·SQLite를 단일 환경의 빠른 시연 기술로 제안한다. 본 TRD는 브라우저 기반 프리뷰, 인증 사용자 간 데이터 분리, 사진의 비공개 저장 및 관계형 기록 관리를 위해 **Next.js App Router + TypeScript, Vercel(배포 후보), Supabase(PostgreSQL/Auth/Storage)** 를 선택한다. 기술 선택 변경은 PRD의 사용자 가치와 완료 기준을 바꾸지 않는다. 요금·한도·지역·이용 조건은 배포 시점의 공식 안내를 확인한다.
+PRD는 Python·Streamlit·SQLite를 단일 환경의 빠른 시연 기술로 제안한다. 본 TRD는 브라우저 기반 프리뷰 배포, 인증 사용자 간 데이터 분리, 사진의 비공개 저장 및 관계형 기록 관리를 위해 **Next.js App Router + TypeScript, Vercel(배포 후보), Supabase(PostgreSQL/Auth/Storage)** 를 선택한다. 기술 선택 변경은 PRD의 사용자 가치와 완료 기준을 바꾸지 않는다. 요금·한도·지역·이용 조건은 배포 시점의 공식 안내를 확인한다.
 
 P0 핵심 흐름: 동의 → 예시/업로드 사진 → 질문·답변 3턴 → 키워드·요약 및 복약/컨디션 직접 입력 저장 → 활동 요약 재조회. AI 장애 시에도 fallback으로 완주한다. 보호자 공유는 P2다. 사용성 목표(6명 이상, 5/6명 이상 성공, 완주 3분 이내, 평균 만족도 4.0/5 이상)는 실제 테스트로 판정하며 문서만으로 달성을 주장하지 않는다.
 
@@ -66,20 +66,20 @@ P2는 P0 시연 전에 필수로 요구하지 않는다. 공개 배포 또는 �
                                           └─ AI API
 ```
 
-일반 사용자 요청은 해당 사용자의 JWT/RLS 정책 아래 처리한다. AI 키와 `service_role`은 서버 비밀값이다. 일반 API 경로에서 RLS 우회 용도로 사용하지 않는다. 제한된 관리/삭제 worker만 별도 운영 절차에 따라 사용한다(§10.3, §10.4).
+일반 사용자 요청은 해당 사용자의 JWT/RLS 정책 아래 처리한다. AI 키와 `service_role`은 서버 비밀값이다. 일반 API 경로에서 RLS 우회 용도로 사용하지 않는다. 제한된 삭제 worker의 권한 경계는 §10.3에 정의한다.
 
-### 1.2 역할과 화면
+### 1.2 역할과 주요 화면
 
 - **어르신:** 본인의 동의, 사진, 세션, 메시지, 요약, 체크인을 생성·조회·삭제한다.
-- **보호자(P2):** 초대·어르신 승인·활성 연결·공유 동의가 모두 유효할 때 요약 및 직접 입력 체크 항목만 읽는다. 원본 사진·대화는 읽지 않는다.
+- **보호자(P2):** 초대·어르신 승인·활성 연결·공유 동의가 모두 유효한 경우에만 요약 및 직접 입력 체크 항목을 읽는다. 원본 사진·대화는 읽지 않는다.
 - **담당자:** MVP에서 기관별 관리 기능은 구현하지 않는다.
 
 `role` 값이나 화면 숨김만으로 권한을 부여하지 않는다. 권한은 매 요청에서 서버/RLS로 확인한다. P2 미구현 시 보호자 화면·경로를 제공하지 않는다. 주요 어르신 흐름은 로그인 → 동의 → 사진 선택/업로드 → 회상 대화 3턴 → 오늘 기록 → DB에서 요약 재조회다. 저장 실패 시 입력을 유지하고 재시도하도록 한다.
 
-해커톤 시연에는 데모 계정 또는 참여자별 체험 계정을 사용할 수 있다. 정상 인증·동의·소유권 검증은 유지하고 우회 모드는 제공하지 않는다. 가상 사용자·허가된 이미지로 시연하며, 공용 계정은 개인 데이터를 입력하지 않고 가상 데이터만 사용한다.
+해커톤 시연에는 데모 계정 또는 참여자별 체험 계정을 사용할 수 있다. 정상 인증·동의·소유권 검증은 유지하고 우회 모드는 제공하지 않는다. 가상 사용자·허가된 이미지로 시연하며, 공용 계정은 개인 데이터를 입력하지 않고 초기화 가능한 가상 데이터만 사용한다.
 
 <a id="s2"></a>
-## 2. 데이터 흐름 및 기능 계약
+## 2. 데이터 흐름과 기능 계약
 
 ### 2.1 동의·인증
 
@@ -189,7 +189,7 @@ P2: profiles ↔ caregiver_links ↔ profiles
 | `caregiver_links` (P2) | senior/caregiver UUID FK, invite hash·expiry, `status CHECK pending/active/revoked/expired`, 승인·철회 시각 |
 | `deletion_requests` | `id UUID PK`, `session_id UUID NULL`, `resource_type TEXT`, `resource_id UUID`, `status TEXT CHECK pending/retry/complete/failed`, `attempts INT NOT NULL DEFAULT 0`, `next_attempt_at TIMESTAMPTZ`, `last_error_code TEXT NULL`, `created_at TIMESTAMPTZ`, `completed_at TIMESTAMPTZ NULL`; 본문·객체 URL 미저장 |
 
-`sessions.status`의 허용값은 §10.2와 동일하며 이 문서 전체에서 `created`, `in_progress`, `awaiting_summary`, `completed`, `failed`만 사용한다. 주요 인덱스: `sessions(user_id,started_at DESC)`, `messages(session_id,turn_number,created_at)`, `caregiver_links(caregiver_user_id,status)`, `deletion_requests(status,next_attempt_at)`. 세션 삭제 시 메시지·요약·체크인은 cascade한다. Storage 객체는 별도 삭제 worker가 처리한다.
+세션의 허용 상태는 `created`, `in_progress`, `awaiting_summary`, `completed`, `failed`이며 DB CHECK·API·코드 enum·테스트와 동일하게 유지한다. 체크인 허용값은 `medication_status ∈ {taken, not_taken, not_recorded}`, `condition_status ∈ {good, okay, unwell, not_recorded}`이며 `condition_note`는 null 또는 최대 500자다. 주요 인덱스: `sessions(user_id,started_at DESC)`, `messages(session_id,turn_number,created_at)`, `caregiver_links(caregiver_user_id,status)`, `deletion_requests(status,next_attempt_at)`. 세션 삭제 시 메시지·요약·체크인은 cascade한다. Storage 객체는 별도 삭제 worker가 처리한다.
 
 ### 4.3 접근 제어
 
@@ -285,7 +285,7 @@ public/sample-photos/; .env.example; README.md
 | Preview | PR별 테스트 Supabase·테스트 AI 키 | 운영 데이터 금지, 로그인·동의·3턴·저장 재조회 E2E |
 | Demo/Production | 별도 Supabase, 제한 계정, 허가 이미지, 플랫폼 secrets | RLS·삭제·철회·fallback 사전 검사, 배포 후 smoke test |
 
-순서: Node/package manager와 lockfile 고정 → 비밀값 제외 확인 → 개발 DB migration/RLS → A/B 접근 테스트 → lint/typecheck/unit/integration/build → Preview E2E → Demo 승인 및 사후 데이터 정리. OAuth redirect와 환경 변수를 환경별로 분리한다. Vercel 불가 시 HTTPS·Next.js App Router/API·환경변수·로그·환경 분리를 지원하는 Node 호스팅으로 이전한다. Supabase 대체 시 PostgreSQL·인증·private storage·JWT 권한·삭제 재시도와 테스트를 재구현하기 전 민감 데이터 시연을 중단한다. AI 장애 시 고정 질문과 로컬 요약으로 진행한다.
+실행 순서: Node/package manager와 lockfile 고정 → 비밀값 제외 확인 → 개발 DB migration/RLS → A/B 접근 테스트 → lint/typecheck/unit/integration/build → Preview E2E → Demo 승인 및 사후 데이터 정리. OAuth redirect와 환경 변수를 환경별로 분리한다. Vercel 불가 시 HTTPS·Next.js App Router/API·환경변수·로그·환경 분리를 지원하는 Node 호스팅으로 이전한다. Supabase 대체 시 PostgreSQL·인증·private storage·JWT 권한·삭제 재시도와 테스트를 재구현하기 전 민감 데이터 시연을 중단한다. AI 장애 시 고정 질문과 로컬 요약으로 진행한다.
 
 ## 10.2 세션 상태 전이 및 원자성
 
@@ -296,7 +296,7 @@ public/sample-photos/; .env.example; README.md
 | `created` | 사진 등록 및 저장/AI 동의 활성 | `in_progress` | 첫 assistant 질문을 한 번 저장, 조건 미충족 시 거부 |
 | `in_progress` | turn 1~2 예상 답변 저장 | `in_progress` | 답변 저장 후 다음 질문, 중복 요청은 이전 결과 반환 |
 | `in_progress` | turn 3 답변 저장 | `awaiting_summary` | 후속 질문 없이 요약 작업 시작 |
-| `awaiting_summary` | 검증된 AI/fallback 요약 저장 | `completed` | summary 1개와 완료 시각 확정 |
+| `awaiting_summary` | 검증된 AI/fallback 요약 저장 | `completed` | summary 1개 및 완료 시각 확정 |
 | 진행 상태 | 취소/복구 불가 오류 | `failed` | 민감 콘텐츠를 로그에 남기지 않음; 재시도 가능한 오류는 진행 상태 유지 |
 | `completed` | 추가 turn/complete 요청 | `completed` | `409`; 별도 허용 계약 외에는 불변 |
 
@@ -428,7 +428,7 @@ grant select, insert, update, delete on public.sessions to authenticated;
 grant select, insert, update, delete on public.messages, public.checkins, public.summaries to authenticated;
 ```
 
-`deletion_requests`에는 일반 사용자용 RLS policy나 grant를 두지 않는다. 삭제 worker는 사용자 요청 API와 분리된 비공개 백엔드 작업으로만 실행한다. Supabase `service_role`을 쓰는 경우 RLS를 우회하는 고권한 키임을 전제로, 키를 worker secret에만 보관하고 작업을 삭제 큐 처리로 한정하며 브라우저·일반 API에 전달하지 않는다. 가능하면 제한된 DB 함수/역할을 사용하고 실제 권한을 테스트한다. 동의와 상태 전이는 SQL 기준안 외에도 서버/API에서 검증한다. Storage RLS와 P2 caregiver 정책은 별도 migration·negative test 전에는 사용하지 않는다.
+`deletion_requests`에는 일반 사용자용 RLS policy나 grant를 두지 않는다. 삭제 worker는 사용자 요청 API와 분리된 비공개 백엔드 작업으로만 실행한다. Supabase `service_role`을 쓰는 경우 RLS를 우회하는 고권한 키임을 전제로, 키를 worker secret에만 보관하고 삭제 큐 처리로 작업을 제한한다. 브라우저·일반 API에는 전달하지 않는다. 가능하면 제한된 DB 함수/역할을 사용하며 실제 권한을 테스트한다. `session_id`에 FK를 두지 않는 것은 세션 행 정리 후에도 삭제 작업 이력을 보존하기 위한 설계다. 동의와 상태 전이는 SQL 기준안 외에도 서버/API에서 검증한다. Storage RLS와 P2 caregiver 정책은 별도 migration·negative test 전에는 사용하지 않는다.
 
 ## 10.4 보관 만료 및 API 제한
 
@@ -448,9 +448,21 @@ grant select, insert, update, delete on public.messages, public.checkins, public
 
 분산 배포에서 공유 저장소/플랫폼 기능으로 제한을 적용하며 프로세스 메모리 카운터만 사용하지 않는다. 실제 공급자 한도 검토 후 조정한다.
 
-## 10.5 CI·테스트·증거
+## 10.5 배포 환경·실행 순서
 
-현재 `package.json` 스크립트가 확인되지 않았다는 전제에서 `lint`, `typecheck`, `test`를 구현 단계에서 필수로 추가한다. CI는 `--if-present`를 사용하지 않으므로 스크립트 누락 시 실패한다. PR CI는 lockfile 설치, lint, typecheck, unit test, migration 검증, production build를 수행한다. Preview E2E는 별도 테스트 DB/가상 데이터만 사용하고 secrets는 GitHub Actions secrets에만 둔다.
+| 환경 | 구성 | 검증 |
+|---|---|---|
+| Local | `.env.local`, 개발 Supabase, 가상 계정·샘플 | install, lint, typecheck, unit/integration, build |
+| Preview | PR별 테스트 Supabase·테스트 AI 키 | 운영 데이터 금지, 로그인·동의·3턴·저장 재조회 E2E |
+| Demo/Production | 별도 Supabase, 제한 계정, 허가 이미지, 플랫폼 secrets | RLS·삭제·철회·fallback 사전 검사, 배포 후 smoke test |
+
+체크리스트: Node/package manager와 lockfile 고정 → 비밀값 제외 확인 → 개발 DB migration/RLS 적용 → A/B 접근 테스트 → lint/typecheck/unit/integration/build → Preview E2E → Demo 승인 → 시연 후 계정·사진·세션 정리와 임시 자격 증명 폐기. OAuth redirect와 환경변수를 환경별로 분리한다.
+
+Vercel 사용 불가 시 HTTPS, Next.js App Router/API, 서버 환경변수, 로그, Preview/Production 분리를 지원하는 Node 호스팅으로 이전한다. Supabase 대체 시 PostgreSQL·인증·private storage·JWT 권한·삭제 재시도와 테스트를 재구현하기 전 민감 데이터 시연을 중단한다. AI 장애 시 provider adapter의 고정 질문·로컬 요약을 사용한다.
+
+## 10.6 CI·테스트·증거
+
+`package.json` 스크립트가 아직 확인되지 않았다는 전제에서 `lint`, `typecheck`, `test`, `test:db`를 구현 단계에서 필수로 추가한다. CI는 `--if-present`를 사용하지 않으므로 필수 스크립트 누락 시 실패한다. 아래는 저장소에 적용할 workflow 기준이다. 실제 migration 테스트 명령은 Supabase CLI 설정에 맞춰 `test:db`에 연결한다.
 
 ```yaml
 name: CI
@@ -473,10 +485,11 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test -- --run
+      - run: npm run test:db
       - run: npm run build
 ```
 
-Workflow는 저장소 스크립트와 Node LTS 버전에 맞춰 실제 파일로 추가한다. Migration CI는 빈 DB에 전체 migration을 적용하고 RLS 검사는 실제 authenticated JWT로 수행한다.
+Migration 검증은 빈 테스트 DB에 전체 migration을 적용한다. RLS 테스트는 실제 authenticated JWT로 수행한다. Preview E2E는 별도 테스트 DB·가상 데이터만 사용하고 secrets는 GitHub Actions secrets에만 둔다.
 
 | 테스트 | 준비 | 기대 결과 |
 |---|---|---|
@@ -488,9 +501,10 @@ Workflow는 저장소 스크립트와 Node LTS 버전에 맞춰 실제 파일로
 | 업로드 | 허용 파일·MIME 위장·손상·과대·SVG | 정상만 허용, 나머지 거부 |
 | 저장/삭제 | summary 실패, Storage 삭제 실패 후 재시도 | 완료/삭제 허위 표시 없음, 재시도 수렴 |
 | 보관 작업 | 만료/미만료, 실패 객체 | 만료만 enqueue, 실패 추적, 로그 PII 없음 |
+| deletion worker 경계 | anon/authenticated와 worker 자격 증명 | 일반 사용자 접근 거부, 지정 worker만 큐 처리 가능 |
 
 CI 보고에는 run URL, commit SHA, 통과/실패 건수, 환경만 남긴다. 사진·대화·실사용자 식별정보는 artifact/log에 넣지 않는다. 사용성 실측과 미실행 항목은 자동 테스트와 별도로 보고한다.
 
-## 10.6 구현·검증 판정
+## 10.7 구현·검증 판정
 
-이 문서는 설계 기준이며 점수나 구현 완료를 보장하지 않는다. 제출 증거로 migration 적용 결과, A/B RLS positive/negative test, CI run URL 및 성공 SHA, Preview/Demo smoke test, 6명 이상 사용성 결과(가명 ID·집계 수치), 미검증 P1/P2 및 잔여 위험을 제시한다. 실행하지 않은 항목은 “미검증”으로 표시한다.
+이 문서는 설계 기준이며 점수나 구현 완료를 보장하지 않는다. 제출 증거로 migration 적용 결과, A/B RLS positive/negative test, deletion worker 권한 테스트, CI run URL 및 성공 SHA, Preview/Demo smoke test, 6명 이상 사용성 결과(가명 ID·집계 수치), 미검증 P1/P2 및 잔여 위험을 제시한다. 실행하지 않은 항목은 “미검증”으로 표시한다.
