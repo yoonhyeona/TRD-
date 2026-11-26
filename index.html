@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f6f7f2" />
+  <meta name="description" content="추억 사진으로 시작하는 따뜻한 회상 활동, 정담이" />
+  <title>정담이 — 오늘의 추억 한 조각</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="주 메뉴">
+      <a class="brand" href="#home" data-view="home" aria-label="정담이 홈">
+        <span class="brand-mark" aria-hidden="true">정</span>
+        <span><strong>정담이</strong><small>기억을 잇는 따뜻한 대화</small></span>
+      </a>
+      <div class="side-label">나의 공간</div>
+      <nav class="side-nav">
+        <button class="nav-item active" data-view="home"><span class="nav-icon">⌂</span>오늘의 활동</button>
+        <button class="nav-item" data-view="records"><span class="nav-icon">▤</span>활동 기록</button>
+        <button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span>설정과 동의</button>
+      </nav>
+      <div class="sidebar-note"><span class="note-icon">✳</span><p>천천히, 편안하게<br />떠오르는 만큼만 나눠 주세요.</p></div>
+      <div class="profile-mini"><span class="avatar">나</span><span><b>나의 공간</b><small>오늘도 반가워요</small></span></div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <a class="mobile-brand" href="#home" data-view="home"><span class="brand-mark">정</span><strong>정담이</strong></a>
+        <div class="topbar-spacer"></div>
+        <span class="privacy-pill"><span class="status-dot"></span>나만 보는 기록</span>
+        <button class="icon-button help-button" id="helpBtn" aria-label="도움말">?</button>
+      </header>
+
+      <section id="homeView" class="view active" aria-labelledby="welcomeTitle">
+        <div class="welcome-row">
+          <div><p class="eyebrow">THURSDAY · 나의 하루</p><h1 id="welcomeTitle">안녕하세요, 오늘도 반가워요 <span class="wave">☀</span></h1><p class="muted welcome-copy">사진 한 장과 함께, 마음에 담아 둔 이야기를 꺼내 볼까요?</p></div>
+          <div class="date-chip"><span>오늘</span><strong id="todayDate"></strong></div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-copy"><span class="hero-kicker"><span class="sparkle">✦</span> 오늘의 추억 한 조각</span><h2>기억을 나누는 시간,<br />정담이가 함께할게요.</h2><p>좋아하는 사진을 고르고 편안하게 이야기를 나눠 보세요. 정답은 없어요.</p><button class="primary-button" id="beginBtn">회상 활동 시작하기 <span aria-hidden="true">→</span></button><div class="hero-meta"><span>◷ 약 3분</span><span>♡ 부담 없이 천천히</span></div></div>
+          <div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="art-photo"><img src="assets/sample-photos/countryside.svg" alt="" /><span class="photo-sticker">우리의 소중한 순간</span></div><div class="art-flower flower-one">✿</div><div class="art-flower flower-two">✿</div></div>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">MY ROUTINE</p><h2>오늘의 작은 안부</h2></div><span class="section-caption">하루를 돌아보는 짧은 기록</span></div>
+        <div class="routine-grid">
+          <article class="routine-card"><div class="routine-icon mint">♡</div><div><h3>복약 확인</h3><p>오늘 약은 챙겨 드셨나요?</p></div><button class="text-action" id="quickCheckin">체크하기 <span>→</span></button></article>
+          <article class="routine-card"><div class="routine-icon peach">☼</div><div><h3>오늘의 컨디션</h3><p>몸과 마음은 어떠신가요?</p></div><button class="text-action" id="quickCheckin2">기록하기 <span>→</span></button></article>
+        </div>
+        <div class="section-heading records-heading"><div><p class="eyebrow">YOUR MOMENTS</p><h2>나의 활동 기록</h2></div><button class="text-action" data-view="records">기록 모두 보기 <span>→</span></button></div>
+        <div id="recentRecords" class="recent-records"></div>
+        <footer class="safety-footer"><span class="safety-icon">ⓘ</span><p>정담이는 의료·인지 진단 서비스가 아닙니다. 기록은 일상 회상 활동을 위한 참고용이며, 건강이 걱정될 때는 보호자나 전문기관과 상의해 주세요.</p></footer>
+      </section>
+
+      <section id="recordsView" class="view" aria-labelledby="recordsTitle">
+        <div class="page-heading"><p class="eyebrow">YOUR MOMENTS</p><h1 id="recordsTitle">활동 기록</h1><p class="muted">나누었던 이야기를 언제든 다시 살펴볼 수 있어요.</p></div>
+        <div class="records-toolbar"><div class="records-count" id="recordsCount">기록 0개</div><button class="subtle-button" id="deleteAllBtn">모든 기록 삭제</button></div>
+        <div id="allRecords" class="all-records"></div>
+        <div class="empty-state" id="emptyRecords"><div class="empty-illustration">✿</div><h2>아직 기록이 없어요</h2><p>첫 번째 추억 이야기를 나눠 볼까요?</p><button class="primary-button" data-view="home">오늘의 활동으로 가기 →</button></div>
+      </section>
+
+      <section id="settingsView" class="view" aria-labelledby="settingsTitle">
+        <div class="page-heading"><p class="eyebrow">MY SPACE</p><h1 id="settingsTitle">설정과 동의</h1><p class="muted">편안하고 안전한 이용을 위해 확인해 주세요.</p></div>
+        <div class="settings-card"><div class="settings-symbol">🔒</div><div class="settings-content"><h2>개인정보와 기록 안내</h2><p>현재 데모는 회원가입 없이 이 브라우저의 저장 공간에 기록을 보관합니다. 실제 서버로 전송하지 않으며, 브라우저 데이터를 지우거나 아래 버튼을 누르면 기록을 삭제할 수 있습니다.</p><div class="settings-facts"><span>✓ 기기에만 저장</span><span>✓ 언제든 삭제 가능</span><span>✓ 의료 진단에 사용하지 않음</span></div></div></div>
+        <div class="settings-card consent-card"><div class="settings-content"><h2>활동 동의</h2><p>회상 활동을 시작하기 전에 대화 기록을 이 기기에 저장하고, 회상 질문을 만드는 데 사용하는 것에 동의해 주세요. 실제 AI 연동은 현재 설정되어 있지 않아 질문과 요약은 예시 문구로 진행됩니다.</p><div class="consent-status" id="consentStatus"><span class="status-dot"></span><span>아직 동의하지 않았어요</span></div><button id="revokeConsentBtn" class="subtle-button">동의 철회 및 기록 삭제</button></div></div>
+      </section>
+
+      <section id="photoView" class="view flow-view" aria-labelledby="photoTitle">
+        <button class="back-link" data-view="home">← 홈으로</button>
+        <div class="flow-progress"><span class="step active">1</span><i></i><span class="step">2</span><i></i><span class="step">3</span></div>
+        <div class="page-heading centered"><p class="eyebrow">STEP 1 · 사진 고르기</p><h1 id="photoTitle">어떤 추억을 나눠 볼까요?</h1><p class="muted">사진을 고르거나, 가지고 계신 사진을 올려 주세요.</p></div>
+        <div class="photo-choice-grid" id="sampleGrid">
+          <button class="sample-card selected" data-sample="countryside"><img src="assets/sample-photos/countryside.svg" alt="초록 들판과 시골길"/><span class="sample-check">✓</span><strong>고향의 풍경</strong><small>초록 들판과 오솔길</small></button>
+          <button class="sample-card" data-sample="seaside"><img src="assets/sample-photos/seaside.svg" alt="잔잔한 바닷가"/><span class="sample-check">✓</span><strong>바닷가 나들이</strong><small>파도가 머무는 해변</small></button>
+          <button class="sample-card" data-sample="garden"><img src="assets/sample-photos/garden.svg" alt="햇살이 드는 정원"/><span class="sample-check">✓</span><strong>햇살 가득 정원</strong><small>꽃이 핀 작은 뜰</small></button>
+        </div>
+        <div class="upload-divider"><span>또는 내 사진으로 시작하기</span></div>
+        <label class="upload-box" for="photoUpload"><span class="upload-icon">＋</span><span><strong>사진을 선택해 주세요</strong><small>JPEG, PNG, WebP · 최대 5MB</small></span><span class="upload-cta">사진 찾기</span><input id="photoUpload" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+        <p id="uploadFeedback" class="upload-feedback" aria-live="polite"></p>
+        <div class="consent-inline"><label class="checkbox-label"><input id="consentCheckbox" type="checkbox"/><span class="custom-checkbox"></span><span>대화 내용과 활동 요약을 이 기기에 저장하는 것에 동의합니다.</span></label><p>언제든 설정에서 동의를 철회하고 기록을 삭제할 수 있어요.</p></div>
+        <div class="flow-actions"><button class="primary-button wide" id="startConversationBtn">이 사진으로 시작하기 <span>→</span></button></div>
+        <p class="demo-disclaimer">데모 안내: AI 연결 없이 안전한 예시 질문으로 진행됩니다. 실제 사진은 이 기기에서만 미리보기됩니다.</p>
+      </section>
+
+      <section id="chatView" class="view flow-view" aria-labelledby="chatTitle">
+        <button class="back-link" id="chatBackBtn">← 사진 다시 고르기</button>
+        <div class="flow-progress"><span class="step done">✓</span><i class="filled"></i><span class="step active">2</span><i></i><span class="step">3</span></div>
+        <div class="chat-header"><div><p class="eyebrow">오늘의 회상 대화</p><h1 id="chatTitle">사진을 보며 이야기해요</h1><p class="muted">떠오르는 만큼만, 천천히 들려주세요.</p></div><div class="chat-photo"><img id="chatPhoto" src="assets/sample-photos/countryside.svg" alt="선택한 사진" /></div></div>
+        <div class="chat-card"><div class="chat-topline"><span class="assistant-avatar">정</span><div><b>정담이</b><small>따뜻한 이야기 친구</small></div><span class="turn-counter" id="turnCounter">1 / 3</span></div><div class="conversation" id="conversation" aria-live="polite"></div><div class="chat-compose"><label class="sr-only" for="answerInput">답변 입력</label><textarea id="answerInput" rows="2" maxlength="4000" placeholder="여기에 편하게 적어 주세요"></textarea><button id="sendAnswerBtn" class="send-button" aria-label="답변 보내기">↑</button></div><div class="chat-hint">짧게 적어도 괜찮아요. 답은 정해져 있지 않아요.</div></div>
+        <div class="chat-progress-text"><span id="chatProgressText">첫 번째 이야기예요</span><span>3번의 이야기를 나눠요</span></div>
+      </section>
+
+      <section id="checkinView" class="view flow-view" aria-labelledby="checkinTitle">
+        <button class="back-link" data-view="home">← 나중에 할게요</button>
+        <div class="flow-progress"><span class="step done">✓</span><i class="filled"></i><span class="step done">✓</span><i class="filled"></i><span class="step active">3</span></div>
+        <div class="page-heading centered"><div class="completion-mark">✦</div><p class="eyebrow">참 잘하셨어요</p><h1 id="checkinTitle">오늘의 안부도 남겨 볼까요?</h1><p class="muted">대답하고 싶지 않은 질문은 건너뛰어도 괜찮아요.</p></div>
+        <div class="checkin-card"><h2><span class="checkin-icon mint">♡</span>오늘 약은 챙겨 드셨나요?</h2><div class="choice-row" data-choice="medication"><button class="choice-button" data-value="taken">네, 챙겼어요</button><button class="choice-button" data-value="not_taken">아직 못 먹었어요</button><button class="choice-button selected" data-value="not_recorded">기록 안 할래요</button></div></div>
+        <div class="checkin-card"><h2><span class="checkin-icon peach">☼</span>오늘 컨디션은 어떠세요?</h2><div class="choice-row" data-choice="condition"><button class="choice-button" data-value="good">좋아요</button><button class="choice-button" data-value="okay">보통이에요</button><button class="choice-button" data-value="unwell">조금 불편해요</button><button class="choice-button selected" data-value="not_recorded">기록 안 할래요</button></div><label class="sr-only" for="conditionNote">컨디션 메모</label><textarea class="note-input" id="conditionNote" maxlength="500" placeholder="덧붙이고 싶은 말이 있으면 적어 주세요 (선택)"></textarea></div>
+        <div class="flow-actions split-actions"><button class="subtle-button" id="skipCheckinBtn">건너뛰기</button><button class="primary-button" id="saveCheckinBtn">기록 저장하고 요약 보기 <span>→</span></button></div>
+        <p class="medical-note">건강에 관한 걱정은 의료진이나 전문기관에 문의해 주세요. 정담이는 진단이나 치료 안내를 하지 않습니다.</p>
+      </section>
+
+      <section id="summaryView" class="view flow-view" aria-labelledby="summaryTitle">
+        <div class="summary-top-actions"><button class="back-link" data-view="home">← 홈으로</button><button class="text-action" data-view="records">기록 목록 <span>→</span></button></div>
+        <div class="summary-banner"><div><p class="eyebrow">TODAY'S MEMORY</p><h1 id="summaryTitle">오늘의 이야기가<br />소중한 기록이 되었어요.</h1><p class="muted" id="summaryDate"></p></div><div class="summary-sun">☀</div></div>
+        <article class="summary-card"><div class="summary-card-heading"><span class="summary-icon">✦</span><div><p class="eyebrow">회상 활동 기록</p><h2>오늘 나눈 이야기</h2></div><span class="completed-badge">✓ 완료</span></div><div class="summary-photo-row"><img id="summaryPhoto" src="assets/sample-photos/countryside.svg" alt="오늘 고른 추억 사진"/><div><strong id="summaryPhotoName">고향의 풍경</strong><span>3번의 대화를 나눴어요</span></div></div><div class="summary-description" id="summaryDescription"></div><div class="keyword-list" id="keywordList"></div><div class="divider"></div><div class="conversation-review" id="conversationReview"></div></article>
+        <article class="summary-card checkin-summary"><div class="summary-card-heading"><span class="summary-icon peach">♡</span><div><p class="eyebrow">DAILY CHECK-IN</p><h2>오늘의 안부</h2></div></div><div id="checkinSummaryContent"></div></article>
+        <div class="care-note"><span>ⓘ</span><p>이 기록은 회상 활동과 일상 안부를 돌아보기 위한 참고 자료예요. 의료적 판단이나 인지기능 진단에 사용되지 않습니다. 걱정되는 건강 변화가 있다면 전문기관에 상담해 주세요.</p></div>
+        <div class="flow-actions"><button class="primary-button wide" data-view="home">홈으로 돌아가기 <span>→</span></button></div>
+      </section>
+
+      <footer class="global-footer"><span>정담이</span><span>따뜻한 기억이 이어지는 곳</span></footer>
+    </main>
+  </div>
+  <nav class="mobile-nav" aria-label="모바일 주 메뉴"><button class="active" data-view="home"><span>⌂</span>홈</button><button data-view="records"><span>▤</span>기록</button><button data-view="settings"><span>⚙</span>설정</button></nav>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="helpDialog" class="help-dialog"><button class="dialog-close" id="closeHelp" aria-label="닫기">×</button><div class="dialog-icon">✿</div><h2>정담이는 이렇게 이용해요</h2><p>사진을 고르고 세 번의 짧은 대화를 나누면 오늘의 활동 기록이 만들어져요. 답변은 길지 않아도 괜찮고, 언제든 그만둘 수 있어요.</p><p class="dialog-small">이 데모는 브라우저에만 기록을 저장하며, AI나 의료 진단 기능은 연결되어 있지 않습니다.</p><button class="primary-button wide" id="gotItBtn">알겠어요</button></dialog>
+  <script src="app.js"></script>
+</body>
+</html>
