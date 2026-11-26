@@ -3,9 +3,9 @@
 - **팀명:** 기억배달부
 - **서비스명:** 정담이
 - **기반 문서:** `PRD.md` (정담이 해커톤 팀 아이디어 PRD)
-- **목적:** PRD의 사용자 흐름을 구현 가능한 아키텍처, API, 데이터 모델, 보안 정책, 테스트 기준으로 구체화한다.
+- **목적:** PRD 사용자 흐름을 구현 가능한 아키텍처, API, 데이터 모델, 보안 정책, 테스트 기준으로 구체화한다.
 - **범위:** 해커톤 웹 프로토타입 및 시연
-- **원칙:** 핵심 가치 우선, 빠른 프리뷰 배포, 최소 데이터 수집, 명시적 동의, 서버 측 권한 검증, 비진단적 AI 사용
+- **설계 원칙:** 핵심 가치 우선, 빠른 프리뷰 배포, 최소 데이터 수집, 명시적 동의, 서버 측 권한 검증, 비진단적 AI 사용
 
 > 본 문서는 프로토타입 기술 설계이며 의료기기·임상 진단 시스템 설계가 아니다. AI 결과는 인지활동과 일상 건강 변화에 관한 참고용 요약으로만 표시한다. 질환·인지기능·긴급도를 판정하지 않는다.
 
@@ -28,7 +28,7 @@
 
 ### 0.1 기술 선택과 범위
 
-PRD의 Python·Streamlit·SQLite는 단일 환경에서 빠르게 시연하기 위한 선택이다. TRD는 브라우저 기반 프리뷰 배포, 인증 사용자 간 데이터 분리, 사진의 비공개 저장 및 관계형 기록 관리를 위해 **Next.js + Vercel + Supabase (PostgreSQL/Auth/Storage)** 를 선택한다. 기술 변경은 PRD의 제품 범위나 완료 기준을 바꾸지 않는다. Vercel Hobby와 Supabase Free는 시작 후보이며 요금·한도·지역·이용 조건은 배포 시점의 공식 정책으로 확인한다.
+PRD의 Python·Streamlit·SQLite는 단일 환경에서 빠르게 시연하기 위한 선택이다. TRD는 브라우저 기반 프리뷰 배포, 인증 사용자 간 데이터 분리, 사진의 비공개 저장 및 관계형 기록 관리를 위해 **Next.js + Vercel + Supabase (PostgreSQL/Auth/Storage)** 를 선택한다. 기술 변경은 PRD 제품 범위나 완료 기준을 바꾸지 않는다. Vercel Hobby와 Supabase Free는 시작 후보이며 요금·한도·지역·이용 조건은 배포 시점의 공식 정책으로 확인한다.
 
 P0 핵심 흐름은 동의 → 예시/업로드 사진 선택 → 사진을 참고한 질문과 답변 3턴 → 키워드·요약 및 복약/컨디션 직접 입력 저장 → 활동 요약 재조회다. AI 장애 시에도 fallback으로 완주한다. 보호자 공유는 핵심 흐름 안정화 후 P2로 추가한다. 사용성 목표(6명 이상, 5/6명 이상 성공, 완주 3분 이내, 만족도 평균 4.0/5 이상 등)는 실제 결과로 판정하며 문서만으로 달성을 주장하지 않는다.
 
@@ -76,7 +76,7 @@ P2는 P0 시연 전에 필수로 요구하지 않는다. 공개 배포 또는 �
 
 `role`이나 화면 숨김만으로 권한을 부여하지 않는다. 보호자 권한은 매 요청에서 활성 `caregiver_links`와 유효한 공유 동의를 서버/RLS로 확인한다. P2 미구현 배포에서는 관련 화면과 경로를 제공하지 않는다.
 
-주요 흐름은 홈/로그인 → 동의 → 사진 선택/업로드 → 회상 대화 3턴 → 오늘 기록 → DB에서 활동 요약 재조회다. 기록 화면에는 큰 글씨·고대비·명확한 저장 성공/실패를 제공한다. 로그인 실패는 민감 데이터를 표시하지 않는다. 저장 실패 시 입력을 유지하고 재시도하도록 한다.
+주요 흐름은 홈/로그인 → 동의 → 사진 선택/업로드 → 회상 대화 3턴 → 오늘 기록 → DB에서 활동 요약 재조회다. 기록 화면에는 큰 글씨·고대비·명확한 저장 성공/실패를 제공한다. 로그인 실패는 민감 데이터를 표시하지 않으며 저장 실패 시 입력을 유지하고 재시도하도록 한다.
 
 해커톤 시연에는 사전 준비한 데모 계정 또는 참여자별 체험 계정을 사용할 수 있다. 데모 계정도 정상 인증·동의·소유권·권한 검증을 거치며 우회 모드는 제공하지 않는다. 가상 사용자와 사용 허가된 이미지만 사용한다. 공용 계정은 개인 기록을 입력하지 않고 초기화 가능한 가상 데이터만 사용한다.
 
@@ -104,7 +104,7 @@ P2는 P0 시연 전에 필수로 요구하지 않는다. 공개 배포 또는 �
 
 ### 2.4 AI 스키마 계약
 
-서버는 요청마다 최소 데이터를 구성하고 JSON parse → Zod/JSON Schema 검증 → 안전 검증을 순서대로 수행한다. 아래 스키마는 논리적 계약이며, 구현 시 각 호출별로 별도 Zod 스키마를 둔다.
+서버는 요청마다 최소 데이터를 구성하고 JSON parse → Zod/JSON Schema 검증 → 안전 검증을 순서대로 수행한다. 구현 시 각 호출별로 별도 Zod 스키마를 둔다.
 
 **첫 질문 입력** (이미지는 공개 URL/Storage 경로가 아니라 서버 SDK의 승인된 바이너리 전달로 제공):
 ```json
@@ -187,16 +187,16 @@ P2: profiles ↔ caregiver_links ↔ profiles
 
 | 테이블 | 핵심 필드·제약 |
 |---|---|
-| `profiles` | `id UUID PK/FK auth.users`, `role CHECK senior/caregiver`, `created_at` |
-| `consent_records` | `user_id FK`, `consent_type CHECK data_storage/ai_processing/caregiver_sharing`, `document_version`, `granted_at`, `revoked_at`; 이력 보존 |
-| `sessions` | `id`, `user_id`, `photo_source CHECK sample/upload`, `photo_path`, `started_at`, `completed_at`, `status`; 상태 허용값은 §10.2와 동일 |
-| `messages` | `session_id FK ON DELETE CASCADE`, `turn_number CHECK 1..3`, `role CHECK assistant/user`, `content`; `(session_id,turn_number,role)` UNIQUE |
-| `checkins` | `session_id UNIQUE FK`, `medication_status`, `condition_status`, `condition_note`; 사용자 직접 입력 |
-| `summaries` | `session_id UNIQUE FK`, `participation_count CHECK 0..3`, `recall_keywords`, `activity_summary`, `health_mention_note`, `summary_source CHECK ai/fallback` |
-| `caregiver_links` (P2) | senior/caregiver UUID, invite hash·expiry, `status CHECK pending/active/revoked/expired`, approval/revocation timestamps |
-| `deletion_requests` | request ID, resource ID, status, attempts, next attempt, safe error code; 민감 본문·객체 URL 저장 금지 |
+| `profiles` | `id UUID PK/FK auth.users`, `role TEXT CHECK senior/caregiver`, `created_at TIMESTAMPTZ` |
+| `consent_records` | `id UUID PK`, `user_id UUID FK`, `consent_type TEXT CHECK data_storage/ai_processing/caregiver_sharing`, `document_version TEXT`, `granted_at TIMESTAMPTZ`, `revoked_at TIMESTAMPTZ NULL`; 이력 보존 |
+| `sessions` | `id UUID PK`, `user_id UUID FK`, `photo_source TEXT CHECK sample/upload`, `photo_path TEXT NULL`, `started_at TIMESTAMPTZ`, `completed_at TIMESTAMPTZ NULL`, `status TEXT CHECK created/in_progress/awaiting_summary/completed/failed`; 상태 허용값은 §10.2와 일치 |
+| `messages` | `id UUID PK`, `session_id UUID FK ON DELETE CASCADE`, `turn_number SMALLINT CHECK 1..3`, `role TEXT CHECK assistant/user`, `content TEXT`, `(session_id,turn_number,role) UNIQUE` |
+| `checkins` | `session_id UUID PK/FK`, `medication_status TEXT`, `condition_status TEXT`, `condition_note TEXT NULL`; 사용자 직접 입력 |
+| `summaries` | `id UUID PK`, `session_id UUID UNIQUE FK`, `participation_count SMALLINT CHECK 0..3`, `recall_keywords TEXT[]`, `activity_summary TEXT`, `health_mention_note TEXT NULL`, `summary_source TEXT CHECK ai/fallback` |
+| `caregiver_links` (P2) | `id UUID PK`, senior/caregiver UUID FK, `invite_code_hash TEXT NULL`, `invite_expires_at TIMESTAMPTZ NULL`, `status TEXT CHECK pending/active/revoked/expired`, approval/revocation timestamps |
+| `deletion_requests` | `id UUID PK`, `session_id UUID NULL FK`, `resource_type TEXT`, `resource_id UUID`, `status TEXT CHECK pending/retry/complete/failed`, `attempts INT NOT NULL DEFAULT 0`, `next_attempt_at TIMESTAMPTZ`, `last_error_code TEXT NULL`, `created_at TIMESTAMPTZ`, `completed_at TIMESTAMPTZ NULL`; 민감 본문·객체 URL 저장 금지 |
 
-인덱스는 `sessions(user_id, started_at DESC)`, `messages(session_id,turn_number,created_at)`, `caregiver_links(caregiver_user_id,status)` 등을 둔다. 자식 메시지·요약은 세션 삭제에 cascade하지만 Storage 삭제는 별도 재시도 작업으로 처리한다.
+`deletion_requests`에는 상태 재시도에 필요한 식별자와 오류 코드만 저장한다. 객체 URL이나 파일 내용은 저장하지 않으며, 제한된 삭제 worker만 읽고 쓸 수 있도록 별도 권한/RLS 정책을 적용한다. 핵심 인덱스는 `sessions(user_id, started_at DESC)`, `messages(session_id,turn_number,created_at)`, `caregiver_links(caregiver_user_id,status)`, `deletion_requests(status,next_attempt_at)`이다. 자식 메시지·요약은 세션 삭제에 cascade하지만 Storage 삭제는 별도 작업으로 처리한다.
 
 ### 4.3 접근 제어
 
@@ -306,7 +306,7 @@ Vercel이 불가하면 HTTPS, Next.js App Router/API Route, 서버 환경변수,
 
 ## 10.2 세션 상태 전이 및 원자성
 
-**유일한 허용 상태 집합은 `created`, `in_progress`, `awaiting_summary`, `completed`, `failed`다.** 이 집합은 §4.2 데이터 모델, DB CHECK, API, 코드 enum, 테스트 모두에 동일하게 사용한다. 기존 DB가 다른 상태 집합이면 migration으로 확장하고 모든 참조를 함께 변경한다.
+**유일한 허용 상태 집합은 `created`, `in_progress`, `awaiting_summary`, `completed`, `failed`다.** 이 값은 §4.2 데이터 모델, DB CHECK, API, 코드 enum, 테스트 모두에 동일하게 사용한다.
 
 | 현재 | 조건/명령 | 다음 | 규칙 |
 |---|---|---|---|
@@ -319,7 +319,7 @@ Vercel이 불가하면 HTTPS, Next.js App Router/API Route, 서버 환경변수,
 
 서버는 행 잠금 또는 조건부 update와 DB transaction으로 순서를 보장한다. `(session_id,turn_number,role)` UNIQUE로 중복 행을 막는다. idempotency 테이블에는 user/session/key, request hash, 응답 결과, 만료 시각을 저장한다. 동일 key·동일 본문은 기존 결과, 동일 key·다른 본문은 `409`다. 외부 AI를 DB transaction 내부에서 기다리지 않는다. 답변 저장 → 작업 상태 기록 → 외부 호출 → 검증 → 조건부 결과 저장 순으로 처리한다. 완료는 사용자 답변 3개와 summary가 있을 때만 허용한다.
 
-사진 객체와 DB 삭제는 분산 트랜잭션이 아니다. `deletion_requests`에서 상태·시도 횟수·다음 시각·안전한 오류 코드만 관리하고, Storage 삭제 성공 확인 후 DB 삭제를 수행한다. 재실행은 멱등이어야 한다.
+사진 객체와 DB 삭제는 분산 트랜잭션이 아니다. §4.2 `deletion_requests`에서 상태·시도 횟수·다음 시각·안전한 오류 코드만 관리하고, Storage 삭제 성공 확인 후 DB 삭제를 수행한다. 재실행은 멱등이어야 한다.
 
 ## 10.3 PostgreSQL migration 및 RLS 기준 SQL
 
@@ -388,6 +388,19 @@ create table public.summaries (
   summary_source text not null check (summary_source in ('ai','fallback')),
   created_at timestamptz not null default now()
 );
+create table public.deletion_requests (
+  id uuid primary key default gen_random_uuid(),
+  session_id uuid,
+  resource_type text not null check (resource_type in ('session','photo')),
+  resource_id uuid not null,
+  status text not null default 'pending' check (status in ('pending','retry','complete','failed')),
+  attempts integer not null default 0 check (attempts >= 0),
+  next_attempt_at timestamptz not null default now(),
+  last_error_code text,
+  created_at timestamptz not null default now(),
+  completed_at timestamptz
+);
+create index deletion_requests_due_idx on public.deletion_requests(status,next_attempt_at);
 
 alter table public.profiles enable row level security;
 alter table public.consent_records enable row level security;
@@ -395,6 +408,7 @@ alter table public.sessions enable row level security;
 alter table public.messages enable row level security;
 alter table public.checkins enable row level security;
 alter table public.summaries enable row level security;
+alter table public.deletion_requests enable row level security;
 
 create policy profiles_select_own on public.profiles for select to authenticated
   using (id = (select auth.uid()));
@@ -422,17 +436,20 @@ create policy summaries_owner_all on public.summaries for all to authenticated
   using (exists (select 1 from public.sessions s where s.id = summaries.session_id and s.user_id = (select auth.uid())))
   with check (exists (select 1 from public.sessions s where s.id = summaries.session_id and s.user_id = (select auth.uid())));
 
+-- deletion_requests는 사용자에게 직접 쓰기 권한을 주지 않고 제한된 worker만 처리한다.
+revoke all on public.deletion_requests from anon, authenticated;
+
 grant select, update on public.profiles to authenticated;
 grant select, insert on public.consent_records to authenticated;
 grant select, insert, update, delete on public.sessions to authenticated;
 grant select, insert, update, delete on public.messages, public.checkins, public.summaries to authenticated;
 ```
 
-SQL은 소유자 RLS의 기준 예시이며 추가 business rule(동의 활성, 상태 전이)은 서버/API에서도 검사한다. 직접 테이블 쓰기를 제한하려면 사용자 쓰기 grant를 철회하고 검증된 서버 함수/API만 사용한다. Storage 버킷 RLS와 P2 caregiver 요약 정책은 별도 migration·negative test 전에는 사용하지 않는다.
+SQL은 소유자 RLS 기준이며 추가 business rule(동의 활성, 상태 전이)은 서버/API에서도 검사한다. 직접 테이블 쓰기를 제한하려면 사용자 쓰기 grant를 철회하고 검증된 서버 함수/API만 사용한다. Storage 버킷 RLS와 P2 caregiver 요약 정책은 별도 migration·negative test 전에는 사용하지 않는다.
 
 ## 10.4 보관 만료 및 API 제한 기준
 
-보관 기본값은 완료 후 90일이다. 정기 작업은 매일 03:00 UTC 실행, batch 최대 100건을 제안한다. 만료 건은 deletion request를 만들고 Storage 삭제 확인 후 DB 삭제한다. 실패는 pending/retry/complete/failed, 횟수, `next_attempt_at`, 안전한 오류 코드로 관리하고 backoff 1분·5분·30분·최대 6시간을 적용한다. 작업은 멱등이며 본문·사진 URL을 로그에 남기지 않는다. 앱 백업 및 AI 제공자 잔존 정책은 별도 고지·검증한다.
+보관 기본값은 완료 후 90일이다. 정기 작업은 매일 03:00 UTC 실행, batch 최대 100건을 기준으로 한다. 만료 건은 deletion request를 만들고 Storage 삭제 확인 후 DB 삭제한다. 실패는 pending/retry/complete/failed, 횟수, `next_attempt_at`, 안전한 오류 코드로 관리하고 backoff 1분·5분·30분·최대 6시간을 적용한다. 작업은 멱등이며 본문·사진 URL을 로그에 남기지 않는다. 앱 백업 및 AI 제공자 잔존 정책은 별도 고지·검증한다.
 
 | 대상 | 초기 제한 | 초과 처리 |
 |---|---:|---|
@@ -446,11 +463,11 @@ SQL은 소유자 RLS의 기준 예시이며 추가 business rule(동의 활성, 
 | AI 생성 | 20회/시간/사용자, 턴당 최대 2회 | 제한 시 fallback 또는 `429` |
 | P2 초대 발급 | 5회/시간, 코드 15분·일회성 | `429` |
 
-제한은 분산 배포에서 공유되는 저장소/플랫폼 기능으로 적용한다. 프로세스 메모리 카운터만 운영 제한 수단으로 사용하지 않는다. 값은 제공자 한도와 실제 사용량 검토 후 조정한다.
+제한은 분산 배포에서 공유되는 저장소/플랫폼 기능으로 적용한다. 프로세스 메모리 카운터만 운영 제한 수단으로 사용하지 않는다. 실제 공급자 한도와 사용량 검토 후 조정한다.
 
 ## 10.5 CI·테스트·증거
 
-PR CI는 lockfile 기반 설치, lint, typecheck, unit test, migration 검증, production build를 수행한다. Preview E2E는 별도 테스트 DB/가상 데이터만 사용한다. GitHub Actions secret에만 테스트 자격 증명을 둔다.
+CI는 lockfile 기반 설치, lint, typecheck, unit test, migration 검증, production build를 수행한다. **이 TRD는 `package.json`이 아직 확인되지 않았음을 전제로 하며, `lint`, `typecheck`, `test` 스크립트를 구현 단계에서 필수로 추가한다.** 따라서 CI에서는 `--if-present`를 쓰지 않는다. 스크립트가 없으면 CI가 실패해야 한다. Preview E2E는 별도 테스트 DB/가상 데이터만 사용하며 비밀값은 GitHub Actions secrets에만 둔다.
 
 ```yaml
 name: CI
@@ -476,7 +493,7 @@ jobs:
       - run: npm run build
 ```
 
-이 workflow는 저장소 스크립트에 맞춰 실제 파일로 추가해야 한다. 필수 스크립트 누락이 성공으로 처리되지 않게 한다. Migration CI는 빈 DB에 전체 migration을 적용하고 RLS 테스트는 실제 authenticated JWT로 실행한다.
+이 workflow는 저장소 스크립트·Node LTS 버전에 맞춰 실제 파일로 추가한다. Migration CI는 빈 DB에 전체 migration을 적용하고 RLS 테스트는 실제 authenticated JWT로 실행한다.
 
 | 테스트 | 준비 | 기대 결과 |
 |---|---|---|
